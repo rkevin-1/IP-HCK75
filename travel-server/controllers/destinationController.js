@@ -1,6 +1,5 @@
 const { Destination } = require('../models');
 
-// Get all destinations
 const getAllDestinations = async (req, res) => {
     try {
         const destinations = await Destination.findAll();
@@ -10,7 +9,6 @@ const getAllDestinations = async (req, res) => {
     }
 };
 
-// Create a new destination
 const createDestination = async (req, res) => {
     try {
         const newDestination = await Destination.create(req.body);
@@ -20,7 +18,6 @@ const createDestination = async (req, res) => {
     }
 };
 
-// Update a destination by ID
 const updateDestination = async (req, res) => {
     try {
         const { id } = req.params;
@@ -32,7 +29,6 @@ const updateDestination = async (req, res) => {
     }
 };
 
-// Delete a destination by ID
 const deleteDestination = async (req, res) => {
     try {
         const { id } = req.params;
