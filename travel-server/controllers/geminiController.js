@@ -1,9 +1,10 @@
+require('dotenv').config();
 const axios = require('axios');
 
 // Make sure your .env file contains your API key
 const API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
-
+ 
 const generateGeminiContent = async (req, res) => {
     const { prompt } = req.body;
 

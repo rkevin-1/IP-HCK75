@@ -204,6 +204,33 @@
           }
         }
       ]
+    },
+    {
+      "name": "Gemini",
+      "item": [
+        {
+          "name": "Generate Gemini Content",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/generate-gemini-content",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Your prompt for Gemini content generation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [

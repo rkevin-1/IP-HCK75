@@ -18,7 +18,7 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.post('/logout', auth, userController.logoutUser);
 
-// Register route
+// Review route
 router.get('/destination/:destinationId/reviews', reviewController.getReviewsForDestination);
 router.post('/destination/:destinationId/reviews', auth, reviewController.createReview);
 router.put('/reviews/:reviewId', auth, reviewController.updateReview);

@@ -21,6 +21,10 @@ const createDestination = async (req, res) => {
 const updateDestination = async (req, res) => {
     try {
         const { id } = req.params;
+        const findId = await Destination.findByPk(id);
+        if (!findId) {
+            return res.status(404).json({ message: 'Destination not found' });
+        }
         await Destination.update(req.body, { where: { id } });
         const updatedDestination = await Destination.findByPk(id);
         res.status(200).json(updatedDestination);
@@ -32,6 +36,10 @@ const updateDestination = async (req, res) => {
 const deleteDestination = async (req, res) => {
     try {
         const { id } = req.params;
+        const findId = await Destination.findByPk(id);
+        if (!findId) {
+            return res.status(404).json({ message: 'Destination not found' });
+        }
         await Destination.destroy({ where: { id } });
         res.status(200).json({ message: 'Deleted successfully' });
     } catch (error) {
