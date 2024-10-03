@@ -57,7 +57,6 @@ const googleAuth = async (req, res) => {
     const { googleToken } = req.body;
   
     try {
-      // Verify Google token
       const ticket = await client.verifyIdToken({
         idToken: googleToken,
         audience: process.env.GOOGLE_CLIENT_ID,
@@ -66,7 +65,6 @@ const googleAuth = async (req, res) => {
       const payload = ticket.getPayload();
       const { email } = payload;
   
-      // Find or create the user in your database
       const [user, created] = await User.findOrCreate({
         where: { email },
         defaults: {
@@ -74,9 +72,9 @@ const googleAuth = async (req, res) => {
           email: payload.email,
           picture: payload.picture,
           provider: 'google',
-          password: 'google_id'  // Placeholder password for Google OAuth
+          password: 'google_id'  
         },
-        hooks: false  // Disable any hooks if not required for OAuth
+        hooks: false
       });
   
       // Generate a JWT token for the user
