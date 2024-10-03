@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/destinations', router); 
+app.use('/', router); 
 
 // Start the server
 app.listen(5000, () => {
