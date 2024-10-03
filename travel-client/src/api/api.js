@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://localhost:5000',
   withCredentials: true,
 });
 
@@ -19,5 +19,7 @@ export const getReviews = (destinationId) => api.get(`/destination/${destination
 export const createReview = (destinationId, data) => api.post(`/destination/${destinationId}/reviews`, data);
 export const updateReview = (reviewId, data) => api.put(`/reviews/${reviewId}`, data);
 export const deleteReview = (reviewId) => api.delete(`/reviews/${reviewId}`);
+
+export const generateGeminiContent = (prompt) => api.post('/gemini/generate-gemini-content', { prompt });
 
 export default api;

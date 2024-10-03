@@ -1,12 +1,16 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
-import destinationReducer from './slices/destinationSlice';
-import reviewReducer from './slices/reviewSlice';
+import { createStore, applyMiddleware } from 'redux';
+import { composeWithDevTools } from '@redux-devtools/extension';
+import thunk from 'redux-thunk';
+import rootReducer from '../reducer/index';
 
-export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    destinations: destinationReducer,
-    reviews: reviewReducer,
-  },
-});
+const composeEnhancers =
+  process.env.NODE_ENV === 'development'
+    ? composeWithDevTools
+    : (middleware) => middleware;
+
+const store = createStore(
+  rootReducer,
+  composeEnhancers(applyMiddleware(thunk))
+);
+
+export default store;
