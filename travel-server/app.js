@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const router = require('./routers/index.js'); 
+const router = require('./routers/index.js');
+const gemini = require('./routers/gemini.js');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Define routes
 app.use('/', router); 
+app.use('/gemini', gemini);
 
-// Start the server
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
-});
+// Export the app for testing
+module.exports = app;
