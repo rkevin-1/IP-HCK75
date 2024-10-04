@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media - Destinations & Reviews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <a href="#" class="flex-shrink-0 flex items-center text-xl sm:text-2xl font-bold text-blue-600">
+                        TravelSocial
+                    </a>
+                </div>
+
+                <!-- Profile Picture with Dropdown -->
+                <div class="relative">
+                    <img src="https://via.placeholder.com/40" alt="Profile Picture"
+                        class="h-10 w-10 rounded-full cursor-pointer" id="profileButton">
+
+                    <!-- Dropdown Menu -->
+                    <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-600">Discover Beautiful Destinations</h1>
+
+        <!-- Destinations and Reviews Section -->
+        <div id="destinations" class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+    </div>
+
+    <!-- Gemini Chatbox -->
+    <div id="chatbox-container"
+        class="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg w-80 max-h-96 overflow-hidden hidden">
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <h2 class="font-bold text-lg">Gemini Chat</h2>
+            <button id="chatbox-close" class="text-white hover:text-gray-200">&times;</button>
+        </div>
+        <div class="p-4 overflow-y-auto" id="chatbox-messages" style="max-height: 320px;">
+            <p class="text-gray-600">Hello! How can I assist you today?</p>
+        </div>
+        <div class="p-2 border-t">
+            <input type="text" id="chat-input" placeholder="Type your message..."
+                class="w-full p-2 border rounded-md focus:outline-none" />
+            <button id="send-button"
+                class="w-full bg-blue-600 text-white py-2 mt-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Send</button>
+        </div>
+    </div>
+
+    <!-- Chatbox Button -->
+    <button id="chatbox-toggle"
+        class="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700">
+        Chat with Gemini
+    </button>
+
+    <script>
+        // Fetch destinations and reviews and display them
+        async function fetchDestinationsAndReviews() {
+            try {
+                const destinationsResponse = await fetch('/destinations');
+                const destinations = await destinationsResponse.json();
+                const destinationsContainer = document.getElementById('destinations');
+
+                destinations.forEach(async (destination) => {
+                    const destinationElement = document.createElement('div');
+                    destinationElement.classList.add('bg-white', 'p-6', 'rounded-lg', 'shadow-md', 'space-y-4', 'hover:shadow-lg', 'transition', 'duration-300');
+                    destinationElement.innerHTML = `
+                        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">${destination.name}</h2>
+                        <p class="text-gray-700">${destination.description}</p>
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mt-4">Reviews:</h3>
+                        <div class="reviews space-y-2" id="reviews-${destination.id}">
+                            <p class="text-gray-500">Loading reviews...</p>
+                        </div>
+                    `;
+                    destinationsContainer.appendChild(destinationElement);
+
+                    const reviewsResponse = await fetch(`/destination/${destination.id}/reviews`);
+                    const reviews = await reviewsResponse.json();
+                    const reviewsContainer = document.getElementById(`reviews-${destination.id}`);
+                    reviewsContainer.innerHTML = '';
+
+                    if (reviews.length > 0) {
+                        reviews.forEach(review => {
+                            const reviewElement = document.createElement('div');
+                            reviewElement.classList.add('bg-gray-50', 'p-4', 'rounded-lg', 'shadow-sm');
+                            reviewElement.innerHTML = `
+                                <strong class="text-blue-600">Rating: ${review.rating} / 5</strong>
+                                <p class="text-gray-600 mt-1">${review.content}</p>
+                            `;
+                            reviewsContainer.appendChild(reviewElement);
+                        });
+                    } else {
+                        reviewsContainer.innerHTML = '<p class="text-gray-500">No reviews available for this destination.</p>';
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching destinations and reviews:', error);
+            }
+        }
+
+        // Load the data when the page is loaded
+        window.onload = fetchDestinationsAndReviews;
+
+        // Chatbox functionality
+        const chatboxContainer = document.getElementById('chatbox-container');
+        const chatboxToggle = document.getElementById('chatbox-toggle');
+        const chatboxClose = document.getElementById('chatbox-close');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const chatboxMessages = document.getElementById('chatbox-messages');
+
+        // Toggle chatbox
+        chatboxToggle.addEventListener('click', () => {
+            chatboxContainer.classList.remove('hidden');
+            chatboxToggle.classList.add('hidden');
+        });
+
+        chatboxClose.addEventListener('click', () => {
+            chatboxContainer.classList.add('hidden');
+            chatboxToggle.classList.remove('hidden');
+        });
+
+        // Send message to Gemini and display the response
+        sendButton.addEventListener('click', async () => {
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
+    // Display user message
+    const userMessageElement = document.createElement('div');
+    userMessageElement.classList.add('bg-gray-200', 'p-2', 'rounded-lg', 'mb-2');
+    userMessageElement.innerText = userMessage;
+    chatboxMessages.appendChild(userMessageElement);
+    chatInput.value = '';
+
+    try {
+        // Send message to Gemini API
+        const response = await fetch('http://localhost:5000/generate-gemini-content', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "prompt": userMessage })
+        });
+
+        const data = await response.json();
+        
+        
+        // Extract response text from Gemini API
+        const geminiResponse = data.candidates[0]?.content.parts[0]?.text || "No response from Gemini.";
+
+        // Display response message
+        const responseMessageElement = document.createElement('div');
+        responseMessageElement.classList.add('bg-blue-100', 'p-2', 'rounded-lg', 'mb-2');
+        responseMessageElement.innerText = geminiResponse;
+        chatboxMessages.appendChild(responseMessageElement);
+
+        // Scroll to the bottom
+        chatboxMessages.scrollTop = chatboxMessages.scrollHeight;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+
+    </script>
+
+</body>
+
+</html>
