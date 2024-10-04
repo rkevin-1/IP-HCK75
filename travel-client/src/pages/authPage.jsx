@@ -1,13 +1,32 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Here you would typically dispatch login credentials to a login API or Redux
-    console.log('Email:', email, 'Password:', password);
+
+    try {
+      // Send the POST request to /login
+      const response = await axios.post('/login', {
+        email: email,
+        password: password,
+      });
+
+      if (response.status === 200) {
+        // Handle success (e.g., redirect to dashboard)
+        console.log('Login successful', response.data);
+        alert('Login successful!');
+        // window.location.href = '/dashboard'; // Example redirect after login
+      }
+    } catch (err) {
+      // Handle error
+      setError('Login failed. Please check your credentials and try again.');
+      console.error('Login error:', err);
+    }
   };
 
   return (
@@ -50,6 +69,8 @@ export default function AuthPage() {
               required
             />
           </div>
+          {/* Error Message */}
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           {/* Submit Button */}
           <button
             type="submit"
