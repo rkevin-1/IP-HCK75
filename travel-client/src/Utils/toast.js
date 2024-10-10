@@ -2,11 +2,12 @@ import { toast, Zoom } from "react-toastify";
 
 export default function displayToast(
   type = "error",
-  message = "Oops, Something went wrong"
+  message = "Oops, Something went wrong",
+  onClose = null 
 ) {
   const toastOptions = {
     position: "bottom-left",
-    autoClose: 1300,
+    autoClose: 2300,
     hideProgressBar: false,
     closeOnClick: false,
     pauseOnHover: false,
@@ -14,6 +15,7 @@ export default function displayToast(
     progress: undefined,
     theme: "dark",
     transition: Zoom,
+    onClose: onClose,
   };
 
   switch (type) {

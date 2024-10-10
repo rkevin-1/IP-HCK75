@@ -5,19 +5,21 @@ import Layout from '../components/Layout';
 
 const routes = createBrowserRouter([
     {
-        path: '/auth/google',
+        path: '/login',
         element: <AuthPage />,
+        loader: () => {
+            if (localStorage.getItem('access_token')) {
+                return redirect('/destinations');
+            }
+            return null;
+        }
     },
     {
         path: '/register',
         element: <AuthPage />,
-    },
-    {
-        path: '/login',
-        element: <AuthPage />,
         loader: () => {
-            if (localStorage.getItem('token')) {
-                return redirect('/');
+            if (localStorage.getItem('access_token')) {
+                return redirect('/destinations');
             }
             return null;
         }
@@ -26,7 +28,8 @@ const routes = createBrowserRouter([
         path: '/logout',
         element: <AuthPage />,
         loader: () => {
-            localStorage.removeItem('token');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
             return redirect('/');
         }
 
@@ -35,7 +38,7 @@ const routes = createBrowserRouter([
         path: '/',
         element: <Layout />,
         loader: () => {
-            if (!localStorage.getItem('token')) {
+            if (!localStorage.getItem('access_token')) {
                 return redirect('/login');
             }
             return null;
@@ -73,14 +76,6 @@ const routes = createBrowserRouter([
                 path: '/destination/:id/reviews/:reviewId',
                 element: <HomePage />,
             },
-            {
-                path: '/destination/:id/reviews/:reviewId/edit',
-                element: <HomePage />,
-            },
-            {
-                path: '/destination/:id/reviews/:reviewId/delete',
-                element: <HomePage />,
-            }
         ]
     }
 ]);

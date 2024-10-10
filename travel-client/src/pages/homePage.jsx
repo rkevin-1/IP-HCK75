@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
 
 export default function SocialMediaPage() {
   const [isChatboxVisible, setChatboxVisible] = useState(false);
@@ -14,13 +13,7 @@ export default function SocialMediaPage() {
   };
 
   return (
-    <>
-      <Helmet>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Social Media - Destinations &amp; Reviews</title>
-      </Helmet>
-
+    <div className="h-screen flex flex-col">
       {/* Navbar */}
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,7 +38,7 @@ export default function SocialMediaPage() {
               {/* Dropdown Menu */}
               <div
                 id="profileMenu"
-                className={`absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 ${
+                className={`absolute top-10 right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 ${
                   isDropdownVisible ? 'block' : 'hidden'
                 }`}
               >
@@ -68,7 +61,7 @@ export default function SocialMediaPage() {
       </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto mt-8 px-4 sm:px-6 lg:px-8 flex-1 overflow-y-auto">
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-600">
           Discover Beautiful Destinations
         </h1>
@@ -91,7 +84,9 @@ export default function SocialMediaPage() {
           <button
             id="chatbox-close"
             className="text-white hover:text-gray-200"
-            onClick={toggleChatbox}
+            onClick={() => {
+              setChatboxVisible(false);
+            }}
           >
             ×
           </button>
@@ -123,6 +118,6 @@ export default function SocialMediaPage() {
       >
         Chat with Gemini
       </button>
-    </>
+    </div>
   );
 }

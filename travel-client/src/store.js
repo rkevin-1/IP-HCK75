@@ -1,10 +1,12 @@
-// import { configureStore } from '@reduxjs/toolkit';
-// // import someReducer from './features/someSlice'; // Example of a slice
+// store.js
+import { configureStore } from '@reduxjs/toolkit';
+import destinationReducer from './features/destinationSlice';
+import uiReducer from './features/uiSlice';
 
-// const store = configureStore({
-//   reducer: {
-//     some: someReducer
-//   },
-// });
-
-// export default store;
+export const store = configureStore({
+    reducer: {
+      destination: destinationReducer,
+      ui: uiReducer,
+    },
+  });
+  
