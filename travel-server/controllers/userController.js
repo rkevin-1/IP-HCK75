@@ -39,7 +39,13 @@ const loginUser = async (req, res) => {
 
 
 const logoutUser = (req, res) => {
-    res.status(200).json({ message: 'Logged out successfully' });
+try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    res.status(200).json({ message: 'Logout successful' });
+} catch (error) {
+    res.status(500).json({ error: error.message });
+}
 };
 
 const getUserProfile = async (req, res) => {

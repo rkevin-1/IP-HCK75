@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function SocialMediaPage() {
@@ -7,17 +7,27 @@ export default function SocialMediaPage() {
   const [messages, setMessages] = useState([{ text: 'Hello! How can I assist you today?', sender: 'gemini' }]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef(null); // Ref to track the end of the messages
-  const [geminiResponse, setGeminiResponse] = useState(null);
+  const [destinations, setDestinations] = useState([]); // State for storing fetched destinations
 
-  // Auto scroll to bottom of the chatbox when new messages are added
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // Fetch destinations from the backend when the component mounts
   useEffect(() => {
-    scrollToBottom(); // Scroll to bottom whenever messages change
-  }, [messages]);
+    const fetchDestinations = async () => {
+      try {
+        let { data } = await axios({
+          url: 'http://localhost:3000/destinations', // Replace with your backend URL
+          method: 'get',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`
+          }
+        });
+        setDestinations(data); // Assuming data is an array of destinations
+      } catch (error) {
+        console.error('Error fetching destinations:', error);
+      }
+    };
+
+    fetchDestinations();
+  }, []);
 
   const toggleChatbox = () => {
     setChatboxVisible(!isChatboxVisible);
@@ -41,31 +51,23 @@ export default function SocialMediaPage() {
   const getGeminiResponse = async (userMessage) => {
     try {
       setLoading(true);
-      
       let { data } = await axios({
-        url: "http://localhost:3000/gemini/generate-gemini-content", // Replace with your backend URL
-        method: "post",
+        url: 'http://localhost:3000/gemini/generate-gemini-content', // Replace with your backend URL
+        method: 'post',
         data: {
-          prompt: userMessage // Sending the user's message as 'prompt'
-        }
+          prompt: userMessage,
+        },
       });
-      
+
       const geminiResponseText = data.response;
-  
-      setGeminiResponse(geminiResponseText);
-  
-      const geminiResponse = { text: geminiResponseText, sender: 'gemini' };
-      setMessages((prevMessages) => [...prevMessages, geminiResponse]);
-  
+      setMessages((prevMessages) => [...prevMessages, { text: geminiResponseText, sender: 'gemini' }]);
     } catch (error) {
       console.error('Error getting Gemini response:', error);
-      const errorMessage = { text: 'Sorry, there was an error processing your message.', sender: 'gemini' };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      setMessages((prevMessages) => [...prevMessages, { text: 'Sorry, there was an error processing your message.', sender: 'gemini' }]);
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="h-screen flex flex-col">
@@ -95,7 +97,7 @@ export default function SocialMediaPage() {
                 <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Profile
                 </a>
-                <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <a href="/logout" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Logout
                 </a>
               </div>
@@ -110,7 +112,15 @@ export default function SocialMediaPage() {
           Discover Beautiful Destinations
         </h1>
         {/* Destinations and Reviews Section */}
-        <div id="destinations" className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
+        <div id="destinations" className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {destinations.map((destination) => (
+            <div key={destination.id} className="bg-white shadow-md rounded-lg p-4">
+              <img src={destination.imageUrl} alt={destination.name} className="w-full h-48 object-cover rounded-md" />
+              <h2 className="text-xl font-bold mt-2">{destination.name}</h2>
+              <p className="text-gray-600">{destination.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Gemini Chatbox */}
@@ -135,8 +145,6 @@ export default function SocialMediaPage() {
               {message.text}
             </div>
           ))}
-          {/* Scroll target */}
-          <div ref={messagesEndRef}></div>
         </div>
 
         <div className="p-2 border-t">
@@ -161,11 +169,7 @@ export default function SocialMediaPage() {
 
       {/* Chatbox Button (visible only when chatbox is closed) */}
       {!isChatboxVisible && (
-        <button
-          id="chatbox-toggle"
-          className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
-          onClick={toggleChatbox}
-        >
+        <button id="chatbox-toggle" className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700" onClick={toggleChatbox}>
           Chat with Gemini
         </button>
       )}
