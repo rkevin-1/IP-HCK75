@@ -1,8 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 
 export default function SocialMediaPage() {
   const [isChatboxVisible, setChatboxVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const [messages, setMessages] = useState([{ text: 'Hello! How can I assist you today?', sender: 'gemini' }]);
+  const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null); // Ref to track the end of the messages
+  const [geminiResponse, setGeminiResponse] = useState(null);
+
+  // Auto scroll to bottom of the chatbox when new messages are added
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom(); // Scroll to bottom whenever messages change
+  }, [messages]);
 
   const toggleChatbox = () => {
     setChatboxVisible(!isChatboxVisible);
@@ -12,6 +27,46 @@ export default function SocialMediaPage() {
     setDropdownVisible(!isDropdownVisible);
   };
 
+  const handleSendMessage = () => {
+    if (inputValue.trim()) {
+      const newMessage = { text: inputValue, sender: 'user' };
+      setMessages([...messages, newMessage]);
+      setInputValue('');
+
+      // Make an Axios call to get Gemini's response
+      getGeminiResponse(inputValue);
+    }
+  };
+
+  const getGeminiResponse = async (userMessage) => {
+    try {
+      setLoading(true);
+      
+      let { data } = await axios({
+        url: "http://localhost:3000/gemini/generate-gemini-content", // Replace with your backend URL
+        method: "post",
+        data: {
+          prompt: userMessage // Sending the user's message as 'prompt'
+        }
+      });
+      
+      const geminiResponseText = data.response;
+  
+      setGeminiResponse(geminiResponseText);
+  
+      const geminiResponse = { text: geminiResponseText, sender: 'gemini' };
+      setMessages((prevMessages) => [...prevMessages, geminiResponse]);
+  
+    } catch (error) {
+      console.error('Error getting Gemini response:', error);
+      const errorMessage = { text: 'Sorry, there was an error processing your message.', sender: 'gemini' };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   return (
     <div className="h-screen flex flex-col">
       {/* Navbar */}
@@ -19,10 +74,7 @@ export default function SocialMediaPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <a
-                href="#"
-                className="flex-shrink-0 flex items-center text-xl sm:text-2xl font-bold text-blue-600"
-              >
+              <a href="#" className="flex-shrink-0 flex items-center text-xl sm:text-2xl font-bold text-blue-600">
                 TravelSocial
               </a>
             </div>
@@ -38,20 +90,12 @@ export default function SocialMediaPage() {
               {/* Dropdown Menu */}
               <div
                 id="profileMenu"
-                className={`absolute top-10 right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 ${
-                  isDropdownVisible ? 'block' : 'hidden'
-                }`}
+                className={`absolute top-10 right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 ${isDropdownVisible ? 'block' : 'hidden'}`}
               >
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                >
+                <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Profile
                 </a>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                >
+                <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Logout
                 </a>
               </div>
@@ -66,58 +110,65 @@ export default function SocialMediaPage() {
           Discover Beautiful Destinations
         </h1>
         {/* Destinations and Reviews Section */}
-        <div
-          id="destinations"
-          className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        />
+        <div id="destinations" className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
       </div>
 
       {/* Gemini Chatbox */}
       <div
         id="chatbox-container"
-        className={`fixed bottom-4 right-4 bg-white shadow-lg rounded-lg w-80 max-h-96 overflow-hidden ${
-          isChatboxVisible ? 'block' : 'hidden'
-        }`}
+        className={`fixed bottom-4 right-4 bg-white shadow-lg rounded-lg w-80 max-h-96 ${isChatboxVisible ? 'block' : 'hidden'}`}
       >
         <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
           <h2 className="font-bold text-lg">Gemini Chat</h2>
-          <button
-            id="chatbox-close"
-            className="text-white hover:text-gray-200"
-            onClick={() => {
-              setChatboxVisible(false);
-            }}
-          >
+          <button id="chatbox-close" className="text-white hover:text-gray-200" onClick={() => setChatboxVisible(false)}>
             ×
           </button>
         </div>
+
         <div className="p-4 overflow-y-auto" id="chatbox-messages" style={{ maxHeight: 320 }}>
-          <p className="text-gray-600">Hello! How can I assist you today?</p>
+          {/* Display messages */}
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`mb-2 p-2 rounded-lg shadow-md max-w-xs ${message.sender === 'user' ? 'bg-blue-500 text-white self-end ml-auto' : 'bg-gray-300 text-black self-start'}`}
+            >
+              {message.text}
+            </div>
+          ))}
+          {/* Scroll target */}
+          <div ref={messagesEndRef}></div>
         </div>
+
         <div className="p-2 border-t">
           <input
             type="text"
             id="chat-input"
             placeholder="Type your message..."
             className="w-full p-2 border rounded-md focus:outline-none"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
           <button
             id="send-button"
             className="w-full bg-blue-600 text-white py-2 mt-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+            onClick={handleSendMessage}
+            disabled={loading}
           >
             Send
           </button>
         </div>
       </div>
 
-      {/* Chatbox Button */}
-      <button
-        id="chatbox-toggle"
-        className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
-        onClick={toggleChatbox}
-      >
-        Chat with Gemini
-      </button>
+      {/* Chatbox Button (visible only when chatbox is closed) */}
+      {!isChatboxVisible && (
+        <button
+          id="chatbox-toggle"
+          className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
+          onClick={toggleChatbox}
+        >
+          Chat with Gemini
+        </button>
+      )}
     </div>
   );
 }

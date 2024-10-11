@@ -26,7 +26,7 @@ export default function AuthPage() {
           password,
         },
       });
-      console.log(response.data.message, "<<<<<<<<response");
+      // console.log(response.data.message, "<<<<<<<<response");
 
       if (response.data.message === "Invalid email or password") {
         displayToast('error', 'Please check your email or password!');
@@ -73,7 +73,7 @@ export default function AuthPage() {
       if (result.status === 200) {
         localStorage.setItem('token', result.data.token);
         displayToast('Google login successful!', 'success');
-        navigate('/home');
+        navigate('/');
       }
     } catch (err) {
       console.error('Google login failed', err);
@@ -98,7 +98,7 @@ export default function AuthPage() {
       await loadGoogleScript(); // Ensure the Google script is loaded before using google.accounts
 
       google.accounts.id.initialize({
-        client_id: process.env.GOOGLE_CLIENT_ID, // Use your Google client ID
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID, // Use your Google client ID
         callback: async (response) => {
           console.log('Encoded JWT ID token: ' + response.credential);
           try {

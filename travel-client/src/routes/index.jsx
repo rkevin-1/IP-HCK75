@@ -9,7 +9,7 @@ const routes = createBrowserRouter([
         element: <AuthPage />,
         loader: () => {
             if (localStorage.getItem('access_token')) {
-                return redirect('/destinations');
+                return redirect('/');
             }
             return null;
         }
@@ -19,7 +19,7 @@ const routes = createBrowserRouter([
         element: <AuthPage />,
         loader: () => {
             if (localStorage.getItem('access_token')) {
-                return redirect('/destinations');
+                return redirect('/');
             }
             return null;
         }
@@ -50,30 +50,6 @@ const routes = createBrowserRouter([
             },
             {
                 path: '/profile',
-                element: <HomePage />,
-            },
-            {
-                path: '/create-destination',
-                element: <HomePage />,
-            },
-            {
-                path: '/update-destination/:id',
-                element: <HomePage />,
-            },
-            {
-                path: '/delete-destination/:id',
-                element: <HomePage />,
-            },
-            {
-                path: '/destination/:id',
-                element: <HomePage />,
-            },
-            {
-                path: '/destination/:id/reviews',
-                element: <HomePage />,
-            },
-            {
-                path: '/destination/:id/reviews/:reviewId',
                 element: <HomePage />,
             },
         ]
