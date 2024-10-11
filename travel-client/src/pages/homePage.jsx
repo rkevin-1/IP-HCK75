@@ -51,7 +51,7 @@ export default function SocialMediaPage() {
   const getGeminiResponse = async (userMessage) => {
     try {
       setLoading(true);
-      let { data } = await axios({
+      let {data}  = await axios({
         url: 'http://localhost:3000/gemini/generate-gemini-content', // Replace with your backend URL
         method: 'post',
         data: {
@@ -59,7 +59,7 @@ export default function SocialMediaPage() {
         },
       });
 
-      const geminiResponseText = data.response;
+      const geminiResponseText = data;
       setMessages((prevMessages) => [...prevMessages, { text: geminiResponseText, sender: 'gemini' }]);
     } catch (error) {
       console.error('Error getting Gemini response:', error);
