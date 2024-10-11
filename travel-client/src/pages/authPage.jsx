@@ -66,15 +66,19 @@ export default function AuthPage() {
   };
 
   const handleCredentialResponse = async (response) => {
+    console.log(response);
+    
     try {
-      const result = await axios.post('http://localhost:3000/users/googleLogin', {
+      
+      const result = await axios.post('http://localhost:3000/auth/google', {
         google_token: response.credential,
       });
-      if (result.status === 200) {
-        localStorage.setItem('token', result.data.token);
+        console.log(result.data);
+        
+        localStorage.setItem('access_token', result.data.access_token);
         displayToast('Google login successful!', 'success');
         navigate('/');
-      }
+      
     } catch (err) {
       console.error('Google login failed', err);
       displayToast('Google login failed.', 'error');
@@ -83,48 +87,16 @@ export default function AuthPage() {
   
 
   useEffect(() => {
-    const loadGoogleScript = () => {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = resolve; // Resolve the promise when the script is loaded
-        document.body.appendChild(script);
-      });
-    };
-
-    const initializeGoogleLogin = async () => {
-      await loadGoogleScript(); // Ensure the Google script is loaded before using google.accounts
-
-      google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID, // Use your Google client ID
-        callback: async (response) => {
-          console.log('Encoded JWT ID token: ' + response.credential);
-          try {
-            const { data } = await axios.post('http://localhost:3000/auth/google', {
-              googleToken: response.credential,
-            });
-            
-            localStorage.setItem('access_token', data.access_token);
-            navigate('/'); // Navigate after login
-          } catch (error) {
-            console.error('Google login failed:', error);
-          }
-        },
-      });
-
-      google.accounts.id.renderButton(
-        document.getElementById('buttonDiv'),
-        { theme: 'outline', size: 'large', locale: 'fr' } // Customize as needed
-      );
-
-      google.accounts.id.prompt(); // Optional: show one-tap prompt
-    };
-
-    initializeGoogleLogin();
-  }, [navigate]);
+    window.google.accounts.id.initialize({
+      client_id: "162462898656-in7ekutqm82pgpfaintdh0am8stgjiqa.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
   
+    window.google.accounts.id.renderButton(
+      document.getElementById("buttonDiv"),
+      { theme: "outline", size: "large" }  // customization attributes
+    );
+  } , []);
 
   return (
     <div className="flex items-center justify-center h-screen">

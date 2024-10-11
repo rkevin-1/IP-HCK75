@@ -3,7 +3,7 @@ const { User } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client();
 
 const registerUser = async (req, res) => {
     try {
@@ -61,11 +61,12 @@ const getUserProfile = async (req, res) => {
 };
 
 const googleAuth = async (req, res) => {
-    const { googleToken } = req.body;
+    const { google_token } = req.body;
+  console.log(google_token);
   
     try {
       const ticket = await client.verifyIdToken({
-        idToken: googleToken,
+        idToken: google_token,
         audience: process.env.GOOGLE_CLIENT_ID,
       });
   
